@@ -1,0 +1,6 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "./para-firmware/Cargo.toml",
+        "./para-shtc3/Cargo.toml"
+    ],
+}
