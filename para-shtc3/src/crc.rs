@@ -1,12 +1,19 @@
 /// Calculate the CRC8 checksum.
 ///
 /// Implementation based on the reference implementation by Sensirion.
-pub(crate) fn crc8(data: &[u8]) -> u8 {
+#[inline]
+pub(crate) const fn crc8(data: &[u8]) -> u8 {
     const CRC8_POLYNOMIAL: u8 = 0x31;
-    let mut crc: u8 = 0xff;
-    for byte in data {
-        crc ^= byte;
-        for _ in 0..8 {
+    let mut crc: u8 = u8::MAX;
+    let mut i = 0;
+
+    while i < data.len() {
+        crc ^= data[i];
+        i += 1;
+
+        let mut c = 0;
+        while c < 8 {
+            c += 1;
             if (crc & 0x80) > 0 {
                 crc = (crc << 1) ^ CRC8_POLYNOMIAL;
             } else {
@@ -14,6 +21,7 @@ pub(crate) fn crc8(data: &[u8]) -> u8 {
             }
         }
     }
+
     crc
 }
 

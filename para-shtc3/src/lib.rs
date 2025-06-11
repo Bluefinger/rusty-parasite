@@ -243,11 +243,7 @@ impl Command {
     }
 }
 
-/// Driver for the SHTCx sensor.
-///
-/// To create an instance of this, use a factory function like
-/// [`shtc1`](fn.shtc1.html) or [`shtc3`](fn.shtc3.html) depending on your
-/// sensor.
+/// Driver for the SHTC3 sensor.
 #[derive(Debug, Default)]
 #[cfg_attr(feature = "debug", derive(defmt::Format))]
 pub struct ShtC3<I2C> {
@@ -263,9 +259,6 @@ where
     I2C: I2c<SevenBitAddress>,
 {
     /// Create a new instance of the driver for the SHTC3.
-    ///
-    /// See [ShtCx](struct.ShtCx.html) for detailed documentation of the available
-    /// methods.
     #[inline]
     pub const fn new(i2c: I2C) -> Self {
         Self { i2c, address: 0x70 }
@@ -311,11 +304,19 @@ where
     /// the buffer size is not a multiple of 3, then not all data will be
     /// validated.
     fn validate_crc(&self, buf: &[u8]) -> Result<(), Error<I2C::Error>> {
-        for chunk in buf.chunks(3) {
-            if chunk.len() == 3 && crc8(&[chunk[0], chunk[1]]) != chunk[2] {
+        let mut chunks = buf.chunks_exact(3);
+
+        for chunk in chunks.by_ref() {
+            if crc8(&chunk[..2]) != chunk[2] {
                 return Err(Error::Crc);
             }
         }
+
+        #[cfg(feature = "debug")]
+        if !chunks.remainder().is_empty() {
+            defmt::warn!("Remaining data in buffer was not CRC8 validated");
+        }
+
         Ok(())
     }
 
@@ -327,7 +328,7 @@ where
     /// the buffer size is not a multiple of 3, then not all data will be
     /// validated.
     fn read_with_crc(&mut self, buf: &mut [u8]) -> Result<(), Error<I2C::Error>> {
-        self.i2c.read(self.address, buf).map_err(Error::I2c)?;
+        self.i2c.read(self.address, buf)?;
         self.validate_crc(buf)
     }
 

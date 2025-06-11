@@ -42,34 +42,34 @@ impl From<RawMeasurement> for Measurement {
 
 impl Temperature {
     /// Create a new `Temperature` from a raw measurement result.
-    pub fn from_raw(raw: u16) -> Self {
+    pub const fn from_raw(raw: u16) -> Self {
         Self(convert_temperature(raw))
     }
 
     /// Return temperature in milli-degrees celsius.
-    pub fn as_millidegrees_celsius(&self) -> i32 {
+    pub const fn as_millidegrees_celsius(&self) -> i32 {
         self.0
     }
 
     /// Return temperature in degrees celsius.
-    pub fn as_degrees_celsius(&self) -> f32 {
+    pub const fn as_degrees_celsius(&self) -> f32 {
         self.0 as f32 / 1000.0
     }
 }
 
 impl Humidity {
     /// Create a new `Humidity` from a raw measurement result.
-    pub fn from_raw(raw: u16) -> Self {
+    pub const fn from_raw(raw: u16) -> Self {
         Self(convert_humidity(raw))
     }
 
     /// Return relative humidity in 1/1000 %RH.
-    pub fn as_millipercent(&self) -> i32 {
+    pub const fn as_millipercent(&self) -> i32 {
         self.0
     }
 
     /// Return relative humidity in %RH.
-    pub fn as_percent(&self) -> f32 {
+    pub const fn as_percent(&self) -> f32 {
         self.0 as f32 / 1000.0
     }
 }
@@ -79,7 +79,7 @@ impl Humidity {
 /// Formula (datasheet 5.11): -45 + 175 * (val / 2^16),
 /// optimized for fixed point math.
 #[inline]
-fn convert_temperature(temp_raw: u16) -> i32 {
+const fn convert_temperature(temp_raw: u16) -> i32 {
     (((temp_raw as u32) * 21875) >> 13) as i32 - 45000
 }
 
@@ -88,7 +88,7 @@ fn convert_temperature(temp_raw: u16) -> i32 {
 /// Formula (datasheet 5.11): 100 * (val / 2^16),
 /// optimized for fixed point math.
 #[inline]
-fn convert_humidity(humi_raw: u16) -> i32 {
+const fn convert_humidity(humi_raw: u16) -> i32 {
     (((humi_raw as u32) * 12500) >> 13) as i32
 }
 
