@@ -379,7 +379,7 @@ where
         self.send_command(Command::SoftwareReset)
     }
 
-    /// Returns the reset duration for the SHTC3
+    /// Returns the reset duration for the SHTC3 in microseconds
     #[inline(always)]
     pub const fn reset_duration(&self) -> u32 {
         240_000
