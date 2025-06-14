@@ -8,19 +8,19 @@ use embassy_time::{Duration, Instant, Timer};
 
 use crate::{Irqs, info};
 
-fn calculate_lux(sample: i16) -> f32 {
+fn calculate_lux(sample: i16, reference: f32) -> f32 {
     const LUX_SUN: f32 = 10000.0;
     const CURRENT_SUN: f32 = 3.59e-3;
     const PHOTO_RESISTOR: f32 = 470.0;
 
-    let current = to_volts(sample) / PHOTO_RESISTOR;
+    let current = to_volts(sample, reference) / PHOTO_RESISTOR;
     
     LUX_SUN * current / CURRENT_SUN
 }
 
 #[inline]
-fn to_volts(sample: i16) -> f32 {
-    ((sample.max(0) as f32) * 3.6) / 4096.0
+fn to_volts(sample: i16, reference: f32) -> f32 {
+    ((sample.max(0) as f32) * reference) / 4096.0
 }
 
 #[embassy_executor::task]
@@ -71,8 +71,8 @@ pub async fn task(
         info!(
             "ADC readings: soil {}, lux {}, bat {}v",
             soil,
-            calculate_lux(light),
-            to_volts(bat)
+            calculate_lux(light, 3.6),
+            to_volts(bat, 3.6)
         );
 
         photo_ctrl.set_low();
