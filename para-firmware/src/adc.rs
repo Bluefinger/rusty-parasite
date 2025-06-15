@@ -5,16 +5,17 @@ use embassy_nrf::{
     saadc::{ChannelConfig, Config, Reference, Resolution, Saadc, VddInput},
 };
 use embassy_time::{Duration, Instant, Timer};
+use para_battery::BatteryDischargeProfile;
 
 use crate::{Irqs, info};
 
-fn calculate_lux(sample: i16, reference: f32) -> f32 {
+fn calculate_lux(voltage: f32) -> f32 {
     const LUX_SUN: f32 = 10000.0;
     const CURRENT_SUN: f32 = 3.59e-3;
     const PHOTO_RESISTOR: f32 = 470.0;
 
-    let current = to_volts(sample, reference) / PHOTO_RESISTOR;
-    
+    let current = voltage / PHOTO_RESISTOR;
+
     LUX_SUN * current / CURRENT_SUN
 }
 
@@ -22,6 +23,13 @@ fn calculate_lux(sample: i16, reference: f32) -> f32 {
 fn to_volts(sample: i16, reference: f32) -> f32 {
     ((sample.max(0) as f32) * reference) / 4096.0
 }
+
+static DISCARGE_PROFILES: [BatteryDischargeProfile; 4] = [
+    BatteryDischargeProfile::new(3.00, 2.90, 1.00, 0.42),
+    BatteryDischargeProfile::new(2.90, 2.74, 0.42, 0.18),
+    BatteryDischargeProfile::new(2.74, 2.44, 0.18, 0.06),
+    BatteryDischargeProfile::new(2.44, 2.01, 0.06, 0.00),
+];
 
 #[embassy_executor::task]
 pub async fn task(
@@ -68,11 +76,14 @@ pub async fn task(
 
         let [soil, light, bat] = buf;
 
+        let bat_volt = to_volts(bat, 3.6);
+
         info!(
-            "ADC readings: soil {}, lux {}, bat {}v",
+            "ADC readings: soil {}, lux {}, bat {}v {}%",
             soil,
-            calculate_lux(light, 3.6),
-            to_volts(bat, 3.6)
+            calculate_lux(to_volts(light, 3.6)),
+            bat_volt,
+            BatteryDischargeProfile::calc_pct_from_profile_range(bat_volt, DISCARGE_PROFILES.iter()) * 100.0
         );
 
         photo_ctrl.set_low();

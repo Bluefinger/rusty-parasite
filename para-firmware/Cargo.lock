@@ -567,6 +567,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "para-battery"
+version = "0.1.0"
+
+[[package]]
 name = "para-shtc3"
 version = "0.1.0"
 dependencies = [
@@ -663,6 +667,7 @@ dependencies = [
  "embedded-hal 1.0.0",
  "panic-halt",
  "panic-probe",
+ "para-battery",
  "para-shtc3",
  "static_cell",
 ]
