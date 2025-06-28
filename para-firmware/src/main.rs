@@ -4,8 +4,12 @@
 
 mod adc;
 mod ble;
+mod button;
+mod constants;
 mod fmt;
+mod led;
 mod shtc3;
+mod state;
 
 #[cfg(not(feature = "defmt"))]
 use panic_halt as _;
@@ -16,12 +20,11 @@ use {defmt_rtt as _, panic_probe as _};
 use embassy_executor::Spawner;
 use embassy_nrf::{
     bind_interrupts,
-    gpio::{Level, Output, OutputDrive},
+    gpio::{Input, Level, Output, OutputDrive},
     peripherals,
     pwm::SimplePwm,
     rng, saadc, twim,
 };
-use embassy_time::Timer;
 use fmt::{info, unwrap};
 use nrf_sdc::mpsl::MultiprotocolServiceLayer;
 use nrf_sdc::{self as sdc, mpsl};
@@ -40,7 +43,17 @@ bind_interrupts!(struct Irqs {
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
     let p = embassy_nrf::init(Default::default());
-    let mut led = Output::new(p.P0_28, Level::Low, OutputDrive::Standard);
+
+    spawner.must_spawn(button::task(Input::new(
+        p.P0_30,
+        embassy_nrf::gpio::Pull::Up,
+    )));
+    spawner.must_spawn(led::task(Output::new(
+        p.P0_28,
+        Level::Low,
+        OutputDrive::Standard,
+    )));
+
     let photo_ctrl = Output::new(p.P0_29, Level::Low, OutputDrive::Standard);
     let pwm_ctrl = SimplePwm::new_1ch(p.PWM0, p.P0_05);
 
@@ -66,7 +79,7 @@ async fn main(spawner: Spawner) {
 
     let mut rng = rng::Rng::new(p.RNG, Irqs);
 
-    let mut sdc_mem = sdc::Mem::<1112>::new();
+    let mut sdc_mem = sdc::Mem::<1648>::new();
     let sdc = unwrap!(ble::build_sdc(sdc_p, &mut rng, mpsl, &mut sdc_mem));
 
     spawner.must_spawn(shtc3::task(p.TWISPI0, p.P0_24, p.P0_13));
@@ -74,7 +87,5 @@ async fn main(spawner: Spawner) {
 
     info!("Rusty Parasite is go!");
 
-    led.set_high();
-    Timer::after_millis(500).await;
     ble::run(sdc).await;
 }

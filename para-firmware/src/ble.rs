@@ -1,12 +1,17 @@
-use bt_hci::cmd::le::*;
-use bt_hci::controller::ControllerCmdSync;
+use bt_hci::cmd::SyncCmd;
 use embassy_futures::join::join;
-use embassy_nrf::{mode, peripherals, rng};
+use embassy_nrf::{mode, pac, peripherals, rng};
 use embassy_time::{Duration, Timer};
 use nrf_mpsl::MultiprotocolServiceLayer;
+use nrf_sdc::vendor::ZephyrWriteBdAddr;
+use para_bthome::BtHomeAd;
 use trouble_host::prelude::*;
 
-use crate::fmt::{info, unwrap};
+use crate::{
+    constants::{PARA_ADV_DURATION_SECS, PARA_NAME, PARA_SLEEP_SECS},
+    fmt::{info, unwrap},
+    state::{ADC_MEASUREMENT, SHTC3_MEASUREMENT, START_MEASUREMENTS},
+};
 
 #[embassy_executor::task]
 pub async fn mpsl_task(mpsl: &'static MultiprotocolServiceLayer<'static>) -> ! {
@@ -24,62 +29,71 @@ pub fn build_sdc<'d, const N: usize>(
         .build(p, rng, mpsl, mem)
 }
 
-pub async fn run<C>(controller: C)
-where
-    C: Controller
-        + for<'t> ControllerCmdSync<LeSetExtAdvData<'t>>
-        + ControllerCmdSync<LeClearAdvSets>
-        + ControllerCmdSync<LeSetExtAdvParams>
-        + ControllerCmdSync<LeSetAdvSetRandomAddr>
-        + ControllerCmdSync<LeReadNumberOfSupportedAdvSets>
-        + for<'t> ControllerCmdSync<LeSetExtAdvEnable<'t>>
-        + for<'t> ControllerCmdSync<LeSetExtScanResponseData<'t>>,
-{
-    let address: Address = Address::random([0xff, 0x8f, 0x1a, 0x05, 0xe4, 0xff]);
-    info!("Our address = {:?}", address);
+fn build_addr() -> BdAddr {
+    let ficr = pac::FICR;
+    let high = u64::from(ficr.deviceid(1).read());
+    let addr = high << 32 | u64::from(ficr.deviceid(0).read());
+    let addr = addr | 0x0000_c000_0000_0000;
+    BdAddr::new(unwrap!(addr.to_le_bytes()[..6].try_into()))
+}
+
+pub async fn run<'d>(controller: nrf_sdc::SoftdeviceController<'d>) {
+    let addr = build_addr();
+
+    info!("Our address = {:?}", &addr);
+
+    // Set the bluetooth address
+    unwrap!(ZephyrWriteBdAddr::new(addr).exec(&controller).await);
 
     let mut resources: HostResources<DefaultPacketPool, 0, 0> = HostResources::new();
-    let stack = trouble_host::new(controller, &mut resources).set_random_address(address);
+    let stack = trouble_host::new(controller, &mut resources);
     let Host {
         mut peripheral,
         mut runner,
         ..
     } = stack.build();
 
-    let mut adv_data = [0; 31];
-    let len = unwrap!(AdStructure::encode_slice(
-        &[
-            AdStructure::CompleteLocalName(b"r-para"),
-            AdStructure::Flags(LE_GENERAL_DISCOVERABLE | BR_EDR_NOT_SUPPORTED),
-        ],
-        &mut adv_data[..],
-    ));
+    let start_measurements = START_MEASUREMENTS.sender();
 
     let _ = join(runner.run(), async {
         let params: AdvertisementParameters = AdvertisementParameters {
             interval_min: Duration::from_millis(100),
-            interval_max: Duration::from_millis(100),
+            interval_max: Duration::from_millis(150),
             ..Default::default()
         };
 
         loop {
+            start_measurements.send(());
+
+            let (adc, shtc3) = join(ADC_MEASUREMENT.wait(), SHTC3_MEASUREMENT.wait()).await;
+
+            let mut ad = BtHomeAd::default();
+
+            ad.add_data(&shtc3.temperature)
+                .add_data(&shtc3.humidity)
+                .add_data(&adc.moisture)
+                .add_data(&adc.lux)
+                .add_data(&adc.battery);
+
+            let adv_data = ad.encode_with_local_name(PARA_NAME);
+
             info!("Starting advertising");
             let advertiser = unwrap!(
                 peripheral
                     .advertise(
                         &params,
                         Advertisement::NonconnectableScannableUndirected {
-                            adv_data: &adv_data[..len],
+                            adv_data,
                             scan_data: &[],
                         },
                     )
                     .await,
                 "Failed to advertise"
             );
-            Timer::after_secs(4).await;
+            Timer::after_secs(PARA_ADV_DURATION_SECS).await;
             drop(advertiser);
             info!("Stopping advertising, sleeping...");
-            Timer::after(Duration::from_secs(60)).await;
+            Timer::after(Duration::from_secs(PARA_SLEEP_SECS)).await;
         }
     })
     .await;

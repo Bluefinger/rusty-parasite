@@ -5,6 +5,8 @@ edition = "2024"
 
 [dependencies]
 heapless = "0.8.0"
+defmt = { version = "1", optional = true }
 
 [features]
 debug = ["heapless/defmt-03"]
+defmt = ["dep:defmt"]

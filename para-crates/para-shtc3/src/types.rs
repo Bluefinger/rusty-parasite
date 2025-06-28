@@ -51,6 +51,11 @@ impl Temperature {
         self.0
     }
 
+    /// Return temperature in degrees celcius with 0.01 precision
+    pub const fn as_10mk_celsius(&self) -> i16 {
+        (self.0 / 10) as i16
+    }
+
     /// Return temperature in degrees celsius.
     pub const fn as_degrees_celsius(&self) -> f32 {
         self.0 as f32 / 1000.0
@@ -61,6 +66,11 @@ impl Humidity {
     /// Create a new `Humidity` from a raw measurement result.
     pub const fn from_raw(raw: u16) -> Self {
         Self(convert_humidity(raw))
+    }
+
+    /// Return relative humidity in 1/100 %RH
+    pub const fn as_10mk_percent(&self) -> u16 {
+        (self.0 / 10).abs() as u16
     }
 
     /// Return relative humidity in 1/1000 %RH.

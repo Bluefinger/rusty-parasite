@@ -5,19 +5,15 @@ use embassy_nrf::{
     pwm::{self, SimplePwm},
     saadc::{self, ChannelConfig, Config, Resolution, Saadc},
 };
-use embassy_time::{Duration, Instant, Timer};
+use embassy_time::Timer;
 use para_battery::BatteryDischargeProfile;
 
-use crate::{Irqs, info};
-
-static DRY_COEFFS: [f32; 3] = [234.0, 110.0, -15.3];
-static WET_COEFFS: [f32; 3] = [399.0, -83.1, 11.2];
-static DISCARGE_PROFILES: [BatteryDischargeProfile; 4] = [
-    BatteryDischargeProfile::new(3.00, 2.90, 1.00, 0.42),
-    BatteryDischargeProfile::new(2.90, 2.74, 0.42, 0.18),
-    BatteryDischargeProfile::new(2.74, 2.44, 0.18, 0.06),
-    BatteryDischargeProfile::new(2.44, 2.01, 0.06, 0.00),
-];
+use crate::{
+    Irqs,
+    constants::{DISCARGE_PROFILES, DRY_COEFFS, WET_COEFFS},
+    info,
+    state::{ADC_MEASUREMENT, AdcMeasurements, START_MEASUREMENTS},
+};
 
 const VREF: f32 = 3.6;
 
@@ -33,7 +29,7 @@ fn calculate_soil_moisture(bat: f32, soil: i16) -> f32 {
 
     info!("WUH: dry {}, wet {}, soil {}", dry, wet, soil);
 
-    ((soil as f32) - dry) / (wet - dry)
+    (((soil as f32) - dry) / (wet - dry)).clamp(0.0, 1.0)
 }
 
 #[inline]
@@ -87,8 +83,10 @@ pub async fn task(
 
     pwm_ctrl.enable();
 
+    let mut measure = START_MEASUREMENTS.receiver().unwrap();
+
     loop {
-        let now = Instant::now();
+        measure.changed().await;
 
         photo_ctrl.set_high();
         pwm_ctrl.set_duty(0, 4);
@@ -101,22 +99,20 @@ pub async fn task(
 
         let bat_volt = to_volts(bat, VREF);
 
-        info!(
-            "ADC readings: soil {}%, lux {}, bat {}v {}%",
-            calculate_soil_moisture(bat_volt, soil) * 100.0,
-            calculate_lux(to_volts(light, VREF)),
-            bat_volt,
+        let measurements = AdcMeasurements::new(
             BatteryDischargeProfile::calc_pct_from_profile_range(
                 bat_volt,
-                DISCARGE_PROFILES.iter()
-            ) * 100.0
+                DISCARGE_PROFILES.iter(),
+            ),
+            calculate_soil_moisture(bat_volt, soil),
+            calculate_lux(to_volts(light, VREF)).max(0.0),
         );
+
+        info!("{:?}", &measurements);
+
+        ADC_MEASUREMENT.signal(measurements);
 
         photo_ctrl.set_low();
         pwm_ctrl.set_duty(0, 0);
-
-        let delay = Duration::from_secs(3).as_ticks() - now.elapsed().as_ticks();
-
-        Timer::after_ticks(delay).await;
     }
 }

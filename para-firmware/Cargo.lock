@@ -835,6 +835,14 @@ name = "para-battery"
 version = "0.1.0"
 
 [[package]]
+name = "para-bthome"
+version = "0.1.0"
+dependencies = [
+ "defmt 1.0.1",
+ "heapless",
+]
+
+[[package]]
 name = "para-shtc3"
 version = "0.1.0"
 dependencies = [
@@ -1044,6 +1052,7 @@ dependencies = [
  "panic-halt",
  "panic-probe",
  "para-battery",
+ "para-bthome",
  "para-shtc3",
  "static_cell",
  "trouble-host",
