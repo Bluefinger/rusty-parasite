@@ -16,7 +16,7 @@ impl AdcMeasurements {
     pub fn new(battery: f32, moisture: f32, lux: f32) -> Self {
         let battery = (battery * 100.0) as u8;
         let moisture = (moisture * 10000.0) as u16;
-        let lux = lux as u32;
+        let lux = (lux * 100.0) as u32;
 
         Self {
             battery: battery.into(),
