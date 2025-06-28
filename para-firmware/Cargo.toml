@@ -5,7 +5,11 @@ version = "0.1.0"
 resolver = "3"
 
 [dependencies]
-cortex-m = { version = "0.7.7", features = ["inline-asm", "critical-section-single-core"] }
+nrf-sdc = { git = "https://github.com/alexmoon/nrf-sdc/", package = "nrf-sdc", features = ["defmt", "peripheral", "nrf52840"] }
+nrf-mpsl = { git = "https://github.com/alexmoon/nrf-sdc/", package = "nrf-mpsl", features = ["defmt", "critical-section-impl"] }
+trouble-host = { git = "https://github.com/embassy-rs/trouble/", features = ["derive", "scan"] }
+bt-hci = { version = "0.3", default-features = false }
+cortex-m = { version = "0.7.7", features = ["inline-asm"] }
 cortex-m-rt = "0.7.5"
 defmt = { version = "1.0.1", optional = true }
 defmt-rtt = { version = "1.0.0", optional = true }
@@ -14,12 +18,22 @@ embassy-futures = "0.1.1"
 embassy-nrf = { version = "0.3.1", features = ["nrf52840", "gpiote", "time-driver-rtc1", "defmt"] }
 embassy-sync = "0.7.0"
 embassy-time = { version = "0.4.0", features = ["tick-hz-32_768"] }
-embedded-hal = { version = "1.0.0", features = ["defmt-03"] }
+embedded-hal = { version = "1.0.0" }
+embedded-io = "0.6"
 panic-halt = "1.0.0"
 panic-probe = { version = "1.0.0", features = ["print-defmt"], optional = true }
 para-battery = { path = "../para-crates/para-battery" }
 para-shtc3 = { path = "../para-crates/para-shtc3" }
 static_cell = "2.1.0"
+
+[patch.crates-io]
+embassy-executor = { git = "https://github.com/embassy-rs/embassy.git", rev = "f35aa4005a63e8d478b2b95aaa2bfb316b72dece" }
+embassy-nrf = { git = "https://github.com/embassy-rs/embassy.git", rev = "f35aa4005a63e8d478b2b95aaa2bfb316b72dece" }
+embassy-sync = { git = "https://github.com/embassy-rs/embassy.git", rev = "f35aa4005a63e8d478b2b95aaa2bfb316b72dece" }
+embassy-futures = { git = "https://github.com/embassy-rs/embassy.git", rev = "f35aa4005a63e8d478b2b95aaa2bfb316b72dece" }
+embassy-time = { git = "https://github.com/embassy-rs/embassy.git", rev = "f35aa4005a63e8d478b2b95aaa2bfb316b72dece" }
+embassy-time-driver = { git = "https://github.com/embassy-rs/embassy.git", rev = "f35aa4005a63e8d478b2b95aaa2bfb316b72dece" }
+embassy-embedded-hal = { git = "https://github.com/embassy-rs/embassy.git", rev = "f35aa4005a63e8d478b2b95aaa2bfb316b72dece" }
 
 [[bin]]
 name = "rusty-parasite"
@@ -54,5 +68,9 @@ debug = [
     "embassy-time/defmt",
     "embassy-time/defmt-timestamp-uptime",
     "embassy-nrf/defmt",
-    "para-shtc3/debug"
+    "para-shtc3/debug",
+    "trouble-host/defmt",
+    "bt-hci/defmt",
+    "embedded-hal/defmt-03",
+    "embedded-io/defmt-03",
 ]

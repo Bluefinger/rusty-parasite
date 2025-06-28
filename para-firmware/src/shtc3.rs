@@ -1,10 +1,11 @@
 use embassy_nrf::{
-    peripherals,
+    Peri, peripherals,
     twim::{self, Twim},
 };
 use embassy_time::{Duration, Instant, Timer};
 use embedded_hal::i2c::SevenBitAddress;
 use para_shtc3::{Error as ShtError, PowerMode, ShtC3};
+use static_cell::ConstStaticCell;
 
 use crate::{Irqs, fmt::error, info};
 
@@ -47,10 +48,14 @@ where
 }
 
 #[embassy_executor::task]
-pub async fn task(spio: peripherals::TWISPI0, sda: peripherals::P0_24, scl: peripherals::P0_13) {
+pub async fn task(
+    spio: Peri<'static, peripherals::TWISPI0>,
+    sda: Peri<'static, peripherals::P0_24>,
+    scl: Peri<'static, peripherals::P0_13>,
+) {
     let config = twim::Config::default();
-
-    let twi = Twim::new(spio, Irqs, sda, scl, config);
+    static RAM_BUFFER: ConstStaticCell<[u8; 16]> = ConstStaticCell::new([0; 16]);
+    let twi = Twim::new(spio, Irqs, sda, scl, config, RAM_BUFFER.take());
 
     let mut sht = ShtC3::new(twi);
 

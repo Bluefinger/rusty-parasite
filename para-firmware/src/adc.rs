@@ -1,4 +1,5 @@
 use embassy_nrf::{
+    Peri,
     gpio::Output,
     peripherals,
     pwm::{self, SimplePwm},
@@ -9,8 +10,8 @@ use para_battery::BatteryDischargeProfile;
 
 use crate::{Irqs, info};
 
-static DRY_COEFFS: [f32; 3] = [334.0, 110.0, -15.3];
-static WET_COEFFS: [f32; 3] = [299.0, -83.1, 11.2];
+static DRY_COEFFS: [f32; 3] = [234.0, 110.0, -15.3];
+static WET_COEFFS: [f32; 3] = [399.0, -83.1, 11.2];
 static DISCARGE_PROFILES: [BatteryDischargeProfile; 4] = [
     BatteryDischargeProfile::new(3.00, 2.90, 1.00, 0.42),
     BatteryDischargeProfile::new(2.90, 2.74, 0.42, 0.18),
@@ -53,9 +54,9 @@ fn to_volts(sample: i16, reference: f32) -> f32 {
 
 #[embassy_executor::task]
 pub async fn task(
-    saadc: peripherals::SAADC,
-    light_pin: peripherals::P0_02,
-    soil_pin: peripherals::P0_03,
+    saadc: Peri<'static, peripherals::SAADC>,
+    light_pin: Peri<'static, peripherals::P0_02>,
+    soil_pin: Peri<'static, peripherals::P0_03>,
     mut photo_ctrl: Output<'static>,
     mut pwm_ctrl: SimplePwm<'static, peripherals::PWM0>,
 ) {
@@ -78,7 +79,7 @@ pub async fn task(
     let mut buf = [0; 3];
 
     saadc.calibrate().await;
-    
+
     pwm_ctrl.set_prescaler(pwm::Prescaler::Div1);
     pwm_ctrl.set_period(2_000_000);
 
