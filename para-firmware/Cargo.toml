@@ -44,6 +44,7 @@ panic-probe = { version = "1.0.0", features = ["print-defmt"], optional = true }
 para-battery = { path = "../para-crates/para-battery" }
 para-shtc3 = { path = "../para-crates/para-shtc3" }
 para-bthome = { path = "../para-crates/para-bthome" }
+para-fmt = { path = "../para-crates/para-fmt" }
 static_cell = "2.1.0"
 
 [patch.crates-io]
@@ -94,4 +95,5 @@ debug = [
     "bt-hci/defmt",
     "embedded-hal/defmt-03",
     "embedded-io/defmt-03",
+    "para-fmt/defmt",
 ]

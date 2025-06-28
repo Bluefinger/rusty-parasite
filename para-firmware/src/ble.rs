@@ -5,11 +5,11 @@ use embassy_time::{Duration, Timer};
 use nrf_mpsl::MultiprotocolServiceLayer;
 use nrf_sdc::vendor::ZephyrWriteBdAddr;
 use para_bthome::BtHomeAd;
+use para_fmt::{info, unwrap};
 use trouble_host::prelude::*;
 
 use crate::{
     constants::{PARA_ADV_DURATION_SECS, PARA_NAME, PARA_SLEEP_SECS},
-    fmt::{info, unwrap},
     state::{ADC_MEASUREMENT, SHTC3_MEASUREMENT, START_MEASUREMENTS},
 };
 

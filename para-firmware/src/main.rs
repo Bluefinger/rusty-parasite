@@ -6,7 +6,6 @@ mod adc;
 mod ble;
 mod button;
 mod constants;
-mod fmt;
 mod led;
 mod shtc3;
 mod state;
@@ -14,6 +13,7 @@ mod state;
 #[cfg(not(feature = "defmt"))]
 use panic_halt as _;
 use static_cell::StaticCell;
+use para_fmt::{info, unwrap};
 #[cfg(feature = "defmt")]
 use {defmt_rtt as _, panic_probe as _};
 
@@ -25,7 +25,6 @@ use embassy_nrf::{
     pwm::SimplePwm,
     rng, saadc, twim,
 };
-use fmt::{info, unwrap};
 use nrf_sdc::mpsl::MultiprotocolServiceLayer;
 use nrf_sdc::{self as sdc, mpsl};
 

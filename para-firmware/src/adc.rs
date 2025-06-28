@@ -7,11 +7,11 @@ use embassy_nrf::{
 };
 use embassy_time::Timer;
 use para_battery::BatteryDischargeProfile;
+use para_fmt::{info, unwrap};
 
 use crate::{
     Irqs,
     constants::{DISCARGE_PROFILES, DRY_COEFFS, WET_COEFFS},
-    info,
     state::{ADC_MEASUREMENT, AdcMeasurements, START_MEASUREMENTS},
 };
 
@@ -83,7 +83,7 @@ pub async fn task(
 
     pwm_ctrl.enable();
 
-    let mut measure = START_MEASUREMENTS.receiver().unwrap();
+    let mut measure = unwrap!(START_MEASUREMENTS.receiver());
 
     loop {
         measure.changed().await;
@@ -94,6 +94,9 @@ pub async fn task(
         Timer::after_millis(30).await;
 
         saadc.sample(&mut buf).await;
+
+        photo_ctrl.set_low();
+        pwm_ctrl.set_duty(0, 0);
 
         let [soil, light, bat] = buf;
 
@@ -111,8 +114,5 @@ pub async fn task(
         info!("{:?}", &measurements);
 
         ADC_MEASUREMENT.signal(measurements);
-
-        photo_ctrl.set_low();
-        pwm_ctrl.set_duty(0, 0);
     }
 }

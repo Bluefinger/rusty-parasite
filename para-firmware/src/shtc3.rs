@@ -5,11 +5,11 @@ use embassy_nrf::{
 use embassy_time::Timer;
 use embedded_hal::i2c::SevenBitAddress;
 use para_shtc3::{Error as ShtError, Measurement, PowerMode, ShtC3};
+use para_fmt::{error, unwrap};
 use static_cell::ConstStaticCell;
 
 use crate::{
     Irqs,
-    fmt::error,
     info,
     state::{SHTC3_MEASUREMENT, START_MEASUREMENTS, Shtc3Measurement},
 };
@@ -63,7 +63,7 @@ pub async fn task(
     let twi = Twim::new(spio, Irqs, sda, scl, config, RAM_BUFFER.take());
 
     let mut sht = ShtC3::new(twi);
-    let mut watcher = START_MEASUREMENTS.receiver().unwrap();
+    let mut watcher = unwrap!(START_MEASUREMENTS.receiver());
 
     loop {
         watcher.changed().await;

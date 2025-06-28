@@ -1,5 +1,7 @@
+#![no_std]
 #![allow(unused)]
 
+#[macro_export]
 macro_rules! assert {
     ($($x:tt)*) => {
         {
@@ -11,6 +13,7 @@ macro_rules! assert {
     };
 }
 
+#[macro_export]
 macro_rules! assert_eq {
     ($($x:tt)*) => {
         {
@@ -22,6 +25,7 @@ macro_rules! assert_eq {
     };
 }
 
+#[macro_export]
 macro_rules! assert_ne {
     ($($x:tt)*) => {
         {
@@ -33,6 +37,7 @@ macro_rules! assert_ne {
     };
 }
 
+#[macro_export]
 macro_rules! debug_assert {
     ($($x:tt)*) => {
         {
@@ -44,6 +49,7 @@ macro_rules! debug_assert {
     };
 }
 
+#[macro_export]
 macro_rules! debug_assert_eq {
     ($($x:tt)*) => {
         {
@@ -55,6 +61,7 @@ macro_rules! debug_assert_eq {
     };
 }
 
+#[macro_export]
 macro_rules! debug_assert_ne {
     ($($x:tt)*) => {
         {
@@ -66,6 +73,7 @@ macro_rules! debug_assert_ne {
     };
 }
 
+#[macro_export]
 macro_rules! todo {
     ($($x:tt)*) => {
         {
@@ -77,6 +85,7 @@ macro_rules! todo {
     };
 }
 
+#[macro_export]
 #[cfg(not(feature = "defmt"))]
 macro_rules! unreachable {
     ($($x:tt)*) => {
@@ -84,6 +93,7 @@ macro_rules! unreachable {
     };
 }
 
+#[macro_export]
 #[cfg(feature = "defmt")]
 macro_rules! unreachable {
     ($($x:tt)*) => {
@@ -91,6 +101,7 @@ macro_rules! unreachable {
     };
 }
 
+#[macro_export]
 macro_rules! panic {
     ($($x:tt)*) => {
         {
@@ -102,6 +113,7 @@ macro_rules! panic {
     };
 }
 
+#[macro_export]
 macro_rules! trace {
     ($s:literal $(, $x:expr)* $(,)?) => {
         {
@@ -113,6 +125,7 @@ macro_rules! trace {
     };
 }
 
+#[macro_export]
 macro_rules! debug {
     ($s:literal $(, $x:expr)* $(,)?) => {
         {
@@ -124,6 +137,7 @@ macro_rules! debug {
     };
 }
 
+#[macro_export]
 macro_rules! info {
     ($s:literal $(, $x:expr)* $(,)?) => {
         {
@@ -135,6 +149,7 @@ macro_rules! info {
     };
 }
 
+#[macro_export]
 macro_rules! _warn {
     ($s:literal $(, $x:expr)* $(,)?) => {
         {
@@ -146,6 +161,7 @@ macro_rules! _warn {
     };
 }
 
+#[macro_export]
 macro_rules! error {
     ($s:literal $(, $x:expr)* $(,)?) => {
         {
@@ -157,6 +173,7 @@ macro_rules! error {
     };
 }
 
+#[macro_export]
 #[cfg(feature = "defmt")]
 macro_rules! unwrap {
     ($($x:tt)*) => {
@@ -164,10 +181,11 @@ macro_rules! unwrap {
     };
 }
 
+#[macro_export]
 #[cfg(not(feature = "defmt"))]
 macro_rules! unwrap {
     ($arg:expr) => {
-        match $crate::fmt::Try::into_result($arg) {
+        match $crate::Try::into_result($arg) {
             ::core::result::Result::Ok(t) => t,
             ::core::result::Result::Err(_) => {
                 ::core::panic!();
@@ -175,7 +193,7 @@ macro_rules! unwrap {
         }
     };
     ($arg:expr, $($msg:expr),+ $(,)? ) => {
-        match $crate::fmt::Try::into_result($arg) {
+        match $crate::Try::into_result($arg) {
             ::core::result::Result::Ok(t) => t,
             ::core::result::Result::Err(_) => {
                 ::core::panic!();
@@ -222,18 +240,4 @@ impl defmt::Format for Bytes<'_> {
     }
 }
 
-pub(crate) use _warn as warn;
-pub(crate) use assert;
-pub(crate) use assert_eq;
-pub(crate) use assert_ne;
-pub(crate) use debug;
-pub(crate) use debug_assert;
-pub(crate) use debug_assert_eq;
-pub(crate) use debug_assert_ne;
-pub(crate) use error;
-pub(crate) use info;
-pub(crate) use panic;
-pub(crate) use todo;
-pub(crate) use trace;
-pub(crate) use unreachable;
-pub(crate) use unwrap;
+pub use _warn as warn;
