@@ -29,6 +29,7 @@ defmt-rtt = { version = "1.0.0", optional = true }
 embassy-executor = { version = "0.7.0", features = [
     "arch-cortex-m",
     "executor-thread",
+    "executor-interrupt",
     "nightly",
 ] }
 embassy-futures = "0.1.1"

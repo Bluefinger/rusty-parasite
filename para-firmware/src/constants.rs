@@ -3,7 +3,7 @@ use para_battery::BatteryDischargeProfile;
 pub const PARA_SLEEP_SECS: u64 = 300;
 pub const PARA_ADV_DURATION_SECS: u64 = 4;
 
-pub static PARA_NAME: &'static str = "r-para";
+pub static PARA_NAME: &str = "r-para";
 
 pub static DRY_COEFFS: [f32; 3] = [234.0, 110.0, -15.3];
 pub static WET_COEFFS: [f32; 3] = [399.0, -83.1, 11.2];

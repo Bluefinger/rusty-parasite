@@ -78,15 +78,15 @@ pub async fn task(
 
     pwm_ctrl.set_prescaler(pwm::Prescaler::Div1);
     pwm_ctrl.set_period(2_000_000);
+    pwm_ctrl.disable();
 
     info!("max duty {}", pwm_ctrl.max_duty());
-
-    pwm_ctrl.enable();
 
     let mut measure = unwrap!(START_MEASUREMENTS.receiver());
 
     loop {
         measure.changed().await;
+        pwm_ctrl.enable();
 
         photo_ctrl.set_high();
         pwm_ctrl.set_duty(0, 4);
@@ -97,6 +97,7 @@ pub async fn task(
 
         photo_ctrl.set_low();
         pwm_ctrl.set_duty(0, 0);
+        pwm_ctrl.disable();
 
         let [soil, light, bat] = buf;
 

@@ -56,6 +56,9 @@ async fn main(spawner: Spawner) {
     let photo_ctrl = Output::new(p.P0_29, Level::Low, OutputDrive::Standard);
     let pwm_ctrl = SimplePwm::new_1ch(p.PWM0, p.P0_05);
 
+    spawner.must_spawn(shtc3::task(p.TWISPI0, p.P0_24, p.P0_13));
+    spawner.must_spawn(adc::task(p.SAADC, p.P0_02, p.P0_03, photo_ctrl, pwm_ctrl));
+
     let mpsl_p =
         mpsl::Peripherals::new(p.RTC0, p.TIMER0, p.TEMP, p.PPI_CH19, p.PPI_CH30, p.PPI_CH31);
     let lfclk_cfg = mpsl::raw::mpsl_clock_lfclk_cfg_t {
@@ -80,9 +83,6 @@ async fn main(spawner: Spawner) {
 
     let mut sdc_mem = sdc::Mem::<1648>::new();
     let sdc = unwrap!(ble::build_sdc(sdc_p, &mut rng, mpsl, &mut sdc_mem));
-
-    spawner.must_spawn(shtc3::task(p.TWISPI0, p.P0_24, p.P0_13));
-    spawner.must_spawn(adc::task(p.SAADC, p.P0_02, p.P0_03, photo_ctrl, pwm_ctrl));
 
     info!("Rusty Parasite is go!");
 

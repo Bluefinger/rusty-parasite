@@ -70,7 +70,7 @@ impl Humidity {
 
     /// Return relative humidity in 1/100 %RH
     pub const fn as_10mk_percent(&self) -> u16 {
-        (self.0 / 10).abs() as u16
+        (self.0 / 10).unsigned_abs() as u16
     }
 
     /// Return relative humidity in 1/1000 %RH.

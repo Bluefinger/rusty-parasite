@@ -4,13 +4,12 @@ use embassy_nrf::{
 };
 use embassy_time::Timer;
 use embedded_hal::i2c::SevenBitAddress;
-use para_shtc3::{Error as ShtError, Measurement, PowerMode, ShtC3};
 use para_fmt::{error, unwrap};
+use para_shtc3::{Error as ShtError, Measurement, PowerMode, ShtC3};
 use static_cell::ConstStaticCell;
 
 use crate::{
-    Irqs,
-    info,
+    Irqs, info,
     state::{SHTC3_MEASUREMENT, START_MEASUREMENTS, Shtc3Measurement},
 };
 
@@ -54,19 +53,28 @@ where
 
 #[embassy_executor::task]
 pub async fn task(
-    spio: Peri<'static, peripherals::TWISPI0>,
-    sda: Peri<'static, peripherals::P0_24>,
-    scl: Peri<'static, peripherals::P0_13>,
+    mut spio: Peri<'static, peripherals::TWISPI0>,
+    mut sda: Peri<'static, peripherals::P0_24>,
+    mut scl: Peri<'static, peripherals::P0_13>,
 ) {
-    let config = twim::Config::default();
     static RAM_BUFFER: ConstStaticCell<[u8; 16]> = ConstStaticCell::new([0; 16]);
-    let twi = Twim::new(spio, Irqs, sda, scl, config, RAM_BUFFER.take());
+    let ram = RAM_BUFFER.take();
 
-    let mut sht = ShtC3::new(twi);
     let mut watcher = unwrap!(START_MEASUREMENTS.receiver());
 
     loop {
         watcher.changed().await;
+
+        let config = twim::Config::default();
+        let twi = Twim::new(
+            spio.reborrow(),
+            Irqs,
+            sda.reborrow(),
+            scl.reborrow(),
+            config,
+            ram,
+        );
+        let mut sht = ShtC3::new(twi);
 
         match measure(&mut sht).await {
             Ok(measurement) => {
@@ -81,5 +89,7 @@ pub async fn task(
                 }
             }
         }
+
+        drop(sht);
     }
 }
