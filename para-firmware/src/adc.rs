@@ -102,16 +102,22 @@ pub async fn task(
 
         let bat_volt = to_volts(bat, VREF);
 
-        let measurements = AdcMeasurements::new(
+        let (soil, light, bat) = (
+            calculate_soil_moisture(bat_volt, soil),
+            calculate_lux(to_volts(light, VREF)).max(0.0),
             BatteryDischargeProfile::calc_pct_from_profile_range(
                 bat_volt,
                 DISCARGE_PROFILES.iter(),
             ),
-            calculate_soil_moisture(bat_volt, soil),
-            calculate_lux(to_volts(light, VREF)).max(0.0),
         );
 
-        info!("{:?}", &measurements);
+        let measurements = AdcMeasurements::new(
+            bat,
+            soil,
+            light,
+        );
+
+        info!("Soil {}, Light {}, Bat {}", soil, light, bat);
 
         ADC_MEASUREMENT.signal(measurements);
     }

@@ -149,7 +149,7 @@ pub use types::*;
 
 /// Whether temperature or humidity is returned first when doing a measurement.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "debug", derive(defmt::Format))]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 enum MeasurementOrder {
     TemperatureFirst,
     HumidityFirst,
@@ -169,7 +169,7 @@ enum MeasurementOrder {
 ///
 /// [an-low-power]: https://www.sensirion.com/fileadmin/user_upload/customers/sensirion/Dokumente/2_Humidity_Sensors/Sensirion_Humidity_Sensors_SHTC3_Low_Power_Measurement_Mode.pdf
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "debug", derive(defmt::Format))]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum PowerMode {
     /// Normal measurement.
     NormalMode,
@@ -180,7 +180,7 @@ pub enum PowerMode {
 
 /// All possible errors in this crate
 #[derive(Debug, PartialEq, Clone)]
-#[cfg_attr(feature = "debug", derive(defmt::Format))]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum Error<E: i2c::Error> {
     /// I²C bus error
     I2c(E),
@@ -199,7 +199,7 @@ where
 
 /// I²C commands sent to the sensor.
 #[derive(Debug, Copy, Clone)]
-#[cfg_attr(feature = "debug", derive(defmt::Format))]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 enum Command {
     /// Go into sleep mode.
     Sleep,
@@ -245,7 +245,7 @@ impl Command {
 
 /// Driver for the SHTC3 sensor.
 #[derive(Debug, Default)]
-#[cfg_attr(feature = "debug", derive(defmt::Format))]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct ShtC3<I2C> {
     /// The concrete I²C device implementation.
     i2c: I2C,
@@ -312,7 +312,7 @@ where
             }
         }
 
-        #[cfg(feature = "debug")]
+        #[cfg(feature = "defmt")]
         if !chunks.remainder().is_empty() {
             defmt::warn!("Remaining data in buffer was not CRC8 validated");
         }

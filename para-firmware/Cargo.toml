@@ -6,12 +6,10 @@ resolver = "3"
 
 [dependencies]
 nrf-sdc = { git = "https://github.com/alexmoon/nrf-sdc/", package = "nrf-sdc", features = [
-    "defmt",
     "peripheral",
     "nrf52840",
 ] }
 nrf-mpsl = { git = "https://github.com/alexmoon/nrf-sdc/", package = "nrf-mpsl", features = [
-    "defmt",
     "critical-section-impl",
 ] }
 trouble-host = { git = "https://github.com/embassy-rs/trouble/", features = [
@@ -33,7 +31,6 @@ embassy-nrf = { version = "0.3.1", features = [
     "nrf52840",
     "gpiote",
     "time-driver-rtc1",
-    "defmt",
 ] }
 embassy-sync = "0.7.0"
 embassy-time = { version = "0.4.0", features = ["tick-hz-32_768"] }
@@ -89,7 +86,9 @@ debug = [
     "embassy-time/defmt",
     "embassy-time/defmt-timestamp-uptime",
     "embassy-nrf/defmt",
-    "para-shtc3/debug",
+    "nrf-sdc/defmt",
+    "nrf-mpsl/defmt",
+    "para-shtc3/defmt",
     "para-bthome/defmt",
     "trouble-host/defmt",
     "bt-hci/defmt",

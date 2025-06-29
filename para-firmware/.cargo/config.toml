@@ -8,7 +8,7 @@ runner = 'probe-rs run --chip nRF52840_xxAA'
 target = "thumbv7em-none-eabihf"
 
 [env]
-DEFMT_LOG = "error"
+DEFMT_LOG = "info"
 
 [unstable]
 build-std = ["core"]

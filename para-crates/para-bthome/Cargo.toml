@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 heapless = "0.8.0"
 defmt = { version = "1", optional = true }
+para-fmt = { path = "../para-fmt" }
 
 [features]
-debug = ["heapless/defmt-03"]
-defmt = ["dep:defmt"]
+defmt = ["dep:defmt", "heapless/defmt-03", "para-fmt/defmt"]

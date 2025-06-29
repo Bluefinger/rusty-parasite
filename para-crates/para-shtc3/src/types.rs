@@ -1,16 +1,16 @@
 /// A temperature measurement.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "debug", derive(defmt::Format))]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Temperature(i32);
 
 /// A humidity measurement.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "debug", derive(defmt::Format))]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Humidity(i32);
 
 /// A combined temperature / humidity measurement.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "debug", derive(defmt::Format))]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Measurement {
     /// The measured temperature.
     pub temperature: Temperature,
@@ -23,7 +23,7 @@ pub struct Measurement {
 /// The raw values are of type u16. They require a conversion formula for
 /// conversion to a temperature / humidity value (see datasheet).
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "debug", derive(defmt::Format))]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct RawMeasurement {
     /// The measured temperature (raw value).
     pub temperature: u16,

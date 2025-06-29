@@ -1,6 +1,7 @@
 #![no_std]
 
 use heapless::Vec;
+use para_fmt::panic;
 
 const BR_EDR_NOT_SUPPORTED: u8 = 4;
 const LE_GENERAL_DISCOVERABLE: u8 = 2;

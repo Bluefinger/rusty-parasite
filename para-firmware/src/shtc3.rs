@@ -31,7 +31,7 @@ where
     let m = sht.get_measurement_result()?;
 
     info!(
-        "T: {}C, H: {}%",
+        "Temp: {}C, Humi: {}%",
         m.temperature.as_degrees_celsius(),
         m.humidity.as_percent()
     );
