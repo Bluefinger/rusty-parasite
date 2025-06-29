@@ -9,7 +9,7 @@ use para_fmt::{info, unwrap};
 use trouble_host::prelude::*;
 
 use crate::{
-    constants::{PARA_ADV_DURATION_SECS, PARA_NAME, PARA_SLEEP_SECS},
+    constants::{PARA_ADV_DURATION_SECS, PARA_NAME},
     state::{ADC_MEASUREMENT, SHTC3_MEASUREMENT, START_MEASUREMENTS},
 };
 
@@ -53,7 +53,7 @@ pub async fn run<'d>(controller: nrf_sdc::SoftdeviceController<'d>) {
         ..
     } = stack.build();
 
-    let start_measurements = START_MEASUREMENTS.sender();
+    let mut start_measurements = START_MEASUREMENTS.receiver().unwrap();
 
     let _ = join(runner.run(), async {
         let params: AdvertisementParameters = AdvertisementParameters {
@@ -63,7 +63,7 @@ pub async fn run<'d>(controller: nrf_sdc::SoftdeviceController<'d>) {
         };
 
         loop {
-            start_measurements.send(());
+            start_measurements.changed().await;
 
             let (adc, shtc3) = join(ADC_MEASUREMENT.wait(), SHTC3_MEASUREMENT.wait()).await;
 
@@ -93,7 +93,6 @@ pub async fn run<'d>(controller: nrf_sdc::SoftdeviceController<'d>) {
             Timer::after_secs(PARA_ADV_DURATION_SECS).await;
             drop(advertiser);
             info!("Stopping advertising, sleeping...");
-            Timer::after(Duration::from_secs(PARA_SLEEP_SECS)).await;
         }
     })
     .await;

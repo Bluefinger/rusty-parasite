@@ -9,6 +9,7 @@ mod constants;
 mod led;
 mod shtc3;
 mod state;
+mod timer;
 
 #[cfg(not(feature = "defmt"))]
 use panic_halt as _;
@@ -58,6 +59,7 @@ async fn main(spawner: Spawner) {
     spawner.must_spawn(adc::task(
         p.SAADC, p.P0_02, p.P0_03, photo_ctrl, p.PWM0, p.P0_05,
     ));
+    spawner.must_spawn(timer::task());
 
     let mpsl_p =
         mpsl::Peripherals::new(p.RTC0, p.TIMER0, p.TEMP, p.PPI_CH19, p.PPI_CH30, p.PPI_CH31);

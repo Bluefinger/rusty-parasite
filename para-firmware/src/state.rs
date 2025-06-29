@@ -44,4 +44,4 @@ impl Shtc3Measurement {
 
 pub static SHTC3_MEASUREMENT: Signal<ThreadModeRawMutex, Shtc3Measurement> = Signal::new();
 pub static ADC_MEASUREMENT: Signal<ThreadModeRawMutex, AdcMeasurements> = Signal::new();
-pub static START_MEASUREMENTS: Watch<ThreadModeRawMutex, (), 3> = Watch::new();
+pub static START_MEASUREMENTS: Watch<ThreadModeRawMutex, (), 4> = Watch::new();
