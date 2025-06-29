@@ -1,7 +1,12 @@
 [package]
 name = "para-fmt"
-version = "0.1.0"
-edition = "2024"
+description = "A crate for providing fmt shims for defmt"
+version = { workspace = true }
+edition = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+rust-version = { workspace = true }
 
 [dependencies]
 defmt = { version = "1", optional = true }

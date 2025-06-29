@@ -1,7 +1,12 @@
 [package]
 name = "para-bthome"
-version = "0.1.0"
-edition = "2024"
+description = "A crate for defining the BTHome integration for the rusty parasite"
+version = { workspace = true }
+edition = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+rust-version = { workspace = true }
 
 [dependencies]
 heapless = "0.8.0"

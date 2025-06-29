@@ -1,3 +1,12 @@
 [workspace]
 resolver = "3"
 members = ["para-battery", "para-bthome", "para-fmt", "para-shtc3"]
+
+[workspace.package]
+authors = ["Gonçalo Rica Pais da Silva <bluefinger@gmail.com>"]
+edition = "2024"
+repository = "https://github.com/Bluefinger/rusty-parasite"
+license = "MIT OR Apache-2.0"
+version = "0.1.0"
+rust-version = "1.88.0"
+

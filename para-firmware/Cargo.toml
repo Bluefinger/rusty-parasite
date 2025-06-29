@@ -1,7 +1,12 @@
 [package]
 edition = "2024"
 name = "rusty-parasite"
+description = "Firmware for the b-parasite board, but in Rust!"
+authors = ["Gonçalo Rica Pais da Silva <bluefinger@gmail.com>"]
+repository = "https://github.com/Bluefinger/rusty-parasite"
+license = "MIT OR Apache-2.0"
 version = "0.1.0"
+rust-version = "1.88.0"
 resolver = "3"
 
 [dependencies]
