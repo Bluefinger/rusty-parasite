@@ -50,56 +50,54 @@ fn to_volts(sample: i16, reference: f32) -> f32 {
 
 #[embassy_executor::task]
 pub async fn task(
-    saadc: Peri<'static, peripherals::SAADC>,
-    light_pin: Peri<'static, peripherals::P0_02>,
-    soil_pin: Peri<'static, peripherals::P0_03>,
+    mut saadc: Peri<'static, peripherals::SAADC>,
+    mut light_pin: Peri<'static, peripherals::P0_02>,
+    mut soil_pin: Peri<'static, peripherals::P0_03>,
     mut photo_ctrl: Output<'static>,
-    mut pwm_ctrl: SimplePwm<'static, peripherals::PWM0>,
+    mut pwm: Peri<'static, peripherals::PWM0>,
+    mut pin5: Peri<'static, peripherals::P0_05>,
 ) {
-    let light_config = ChannelConfig::single_ended(light_pin);
-    let mut soil_config = ChannelConfig::single_ended(soil_pin);
-    soil_config.reference = saadc::Reference::VDD1_4;
-    let bat_config = ChannelConfig::single_ended(saadc::VddInput);
-
-    let mut saadc_config = Config::default();
-
-    saadc_config.resolution = Resolution::_10BIT;
-
-    let mut saadc = Saadc::new(
-        saadc,
-        Irqs,
-        saadc_config,
-        [soil_config, light_config, bat_config],
-    );
-
-    let mut buf = [0; 3];
-
-    saadc.calibrate().await;
-
-    pwm_ctrl.set_prescaler(pwm::Prescaler::Div1);
-    pwm_ctrl.set_period(2_000_000);
-    pwm_ctrl.disable();
-
-    info!("max duty {}", pwm_ctrl.max_duty());
+    let mut adc_buf = [0; 3];
 
     let mut measure = unwrap!(START_MEASUREMENTS.receiver());
 
     loop {
         measure.changed().await;
-        pwm_ctrl.enable();
+        let mut pwm_ctrl = SimplePwm::new_1ch(pwm.reborrow(), pin5.reborrow());
+        pwm_ctrl.set_prescaler(pwm::Prescaler::Div1);
+        pwm_ctrl.set_period(2_000_000);
+
+        let light_config = ChannelConfig::single_ended(light_pin.reborrow());
+        let mut soil_config = ChannelConfig::single_ended(soil_pin.reborrow());
+        soil_config.reference = saadc::Reference::VDD1_4;
+        let bat_config = ChannelConfig::single_ended(saadc::VddInput);
+
+        let mut saadc_config = Config::default();
+
+        saadc_config.resolution = Resolution::_10BIT;
+
+        let mut saadc = Saadc::new(
+            saadc.reborrow(),
+            Irqs,
+            saadc_config,
+            [soil_config, light_config, bat_config],
+        );
+
+        saadc.calibrate().await;
 
         photo_ctrl.set_high();
+        pwm_ctrl.enable();
         pwm_ctrl.set_duty(0, 4);
 
         Timer::after_millis(30).await;
 
-        saadc.sample(&mut buf).await;
+        saadc.sample(&mut adc_buf).await;
 
         photo_ctrl.set_low();
         pwm_ctrl.set_duty(0, 0);
         pwm_ctrl.disable();
 
-        let [soil, light, bat] = buf;
+        let [soil, light, bat] = adc_buf;
 
         let bat_volt = to_volts(bat, VREF);
 
@@ -112,14 +110,13 @@ pub async fn task(
             ),
         );
 
-        let measurements = AdcMeasurements::new(
-            bat,
-            soil,
-            light,
-        );
+        let measurements = AdcMeasurements::new(bat, soil, light);
 
         info!("Soil {}, Light {}, Bat {}", soil, light, bat);
 
         ADC_MEASUREMENT.signal(measurements);
+
+        drop(pwm_ctrl);
+        drop(saadc);
     }
 }

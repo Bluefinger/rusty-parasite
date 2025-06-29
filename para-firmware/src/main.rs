@@ -12,8 +12,8 @@ mod state;
 
 #[cfg(not(feature = "defmt"))]
 use panic_halt as _;
-use static_cell::StaticCell;
 use para_fmt::{info, unwrap};
+use static_cell::StaticCell;
 #[cfg(feature = "defmt")]
 use {defmt_rtt as _, panic_probe as _};
 
@@ -22,7 +22,6 @@ use embassy_nrf::{
     bind_interrupts,
     gpio::{Input, Level, Output, OutputDrive},
     peripherals,
-    pwm::SimplePwm,
     rng, saadc, twim,
 };
 use nrf_sdc::mpsl::MultiprotocolServiceLayer;
@@ -54,10 +53,11 @@ async fn main(spawner: Spawner) {
     )));
 
     let photo_ctrl = Output::new(p.P0_29, Level::Low, OutputDrive::Standard);
-    let pwm_ctrl = SimplePwm::new_1ch(p.PWM0, p.P0_05);
 
     spawner.must_spawn(shtc3::task(p.TWISPI0, p.P0_24, p.P0_13));
-    spawner.must_spawn(adc::task(p.SAADC, p.P0_02, p.P0_03, photo_ctrl, pwm_ctrl));
+    spawner.must_spawn(adc::task(
+        p.SAADC, p.P0_02, p.P0_03, photo_ctrl, p.PWM0, p.P0_05,
+    ));
 
     let mpsl_p =
         mpsl::Peripherals::new(p.RTC0, p.TIMER0, p.TEMP, p.PPI_CH19, p.PPI_CH30, p.PPI_CH31);
