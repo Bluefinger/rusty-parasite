@@ -1,10 +1,21 @@
 #![no_std]
 
 use heapless::Vec;
-use para_fmt::panic;
+use para_fmt::assert;
 
 const BR_EDR_NOT_SUPPORTED: u8 = 4;
 const LE_GENERAL_DISCOVERABLE: u8 = 2;
+
+const BTHOME_AD_HEADER: [u8; 8] = [
+    0x02,
+    0x01,
+    LE_GENERAL_DISCOVERABLE | BR_EDR_NOT_SUPPORTED,
+    0x04,
+    0x16,
+    0xD2,
+    0xFC,
+    0x40,
+];
 
 pub const BTHOME_UUID16: u16 = 0xFCD2;
 
@@ -62,16 +73,9 @@ pub struct BtHomeAd<const N: usize> {
 
 impl<const N: usize> BtHomeAd<N> {
     pub fn new() -> Self {
-        let mut buffer = Vec::from_iter([
-            0x02,
-            0x01,
-            LE_GENERAL_DISCOVERABLE | BR_EDR_NOT_SUPPORTED,
-            0x04,
-            0x16,
-        ]);
+        assert!(N >= BTHOME_AD_HEADER.len(), "Ad buffer is too small");
 
-        buffer.extend(BTHOME_UUID16.to_le_bytes());
-        buffer.extend([0x40]);
+        let buffer = Vec::from_iter(BTHOME_AD_HEADER);
 
         Self { buffer }
     }
@@ -79,9 +83,10 @@ impl<const N: usize> BtHomeAd<N> {
     pub fn add_data(&mut self, payload: &dyn BtHomeData) -> &mut Self {
         let encoded = payload.encode();
 
-        if (self.buffer.len() + encoded.len()) >= N {
-            panic!("Can't fit data into buffer!");
-        }
+        assert!(
+            self.buffer.len() + encoded.len() < N,
+            "Can't fit data into buffer!"
+        );
 
         self.buffer[3] += encoded.len() as u8;
         self.buffer.extend_from_slice(encoded).ok();
@@ -92,9 +97,10 @@ impl<const N: usize> BtHomeAd<N> {
     fn add_local_name(&mut self, name: &str) -> &mut Self {
         let len = name.len() + 1;
 
-        if (self.buffer.len() + len) >= N {
-            panic!("Can't fit local name into buffer!");
-        }
+        assert!(
+            self.buffer.len() + len < N,
+            "Can't fit local name into buffer!"
+        );
 
         self.buffer.extend_from_slice(&[len as u8, 0x09]).ok();
         self.buffer.extend_from_slice(name.as_bytes()).ok();

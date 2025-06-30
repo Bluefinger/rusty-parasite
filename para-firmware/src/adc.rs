@@ -8,6 +8,7 @@ use embassy_nrf::{
 use embassy_time::Timer;
 use para_battery::BatteryDischargeProfile;
 use para_fmt::{info, unwrap};
+use static_cell::ConstStaticCell;
 
 use crate::{
     Irqs,
@@ -57,23 +58,26 @@ pub async fn task(
     mut pwm: Peri<'static, peripherals::PWM0>,
     mut pin5: Peri<'static, peripherals::P0_05>,
 ) {
-    let mut adc_buf = [0; 3];
+    static ADC_BUFFER: ConstStaticCell<[i16; 3]> = ConstStaticCell::new([0; 3]);
+    let adc_buf = ADC_BUFFER.take();
 
     let mut measure = unwrap!(START_MEASUREMENTS.receiver());
 
     loop {
         measure.changed().await;
+
         let mut pwm_ctrl = SimplePwm::new_1ch(pwm.reborrow(), pin5.reborrow());
         pwm_ctrl.set_prescaler(pwm::Prescaler::Div1);
         pwm_ctrl.set_period(2_000_000);
 
         let light_config = ChannelConfig::single_ended(light_pin.reborrow());
+
         let mut soil_config = ChannelConfig::single_ended(soil_pin.reborrow());
         soil_config.reference = saadc::Reference::VDD1_4;
+        
         let bat_config = ChannelConfig::single_ended(saadc::VddInput);
 
         let mut saadc_config = Config::default();
-
         saadc_config.resolution = Resolution::_10BIT;
 
         let mut saadc = Saadc::new(
@@ -91,13 +95,13 @@ pub async fn task(
 
         Timer::after_millis(30).await;
 
-        saadc.sample(&mut adc_buf).await;
+        saadc.sample(adc_buf).await;
 
         photo_ctrl.set_low();
         pwm_ctrl.set_duty(0, 0);
         pwm_ctrl.disable();
 
-        let [soil, light, bat] = adc_buf;
+        let [soil, light, bat] = *adc_buf;
 
         let bat_volt = to_volts(bat, VREF);
 
