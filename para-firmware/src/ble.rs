@@ -59,6 +59,7 @@ pub async fn run<'d>(controller: nrf_sdc::SoftdeviceController<'d>) {
         let params: AdvertisementParameters = AdvertisementParameters {
             interval_min: Duration::from_millis(100),
             interval_max: Duration::from_millis(150),
+            tx_power: TxPower::Plus8dBm,
             ..Default::default()
         };
 
