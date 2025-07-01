@@ -99,7 +99,6 @@ pub async fn task(
 
         photo_ctrl.set_low();
         pwm_ctrl.set_duty(0, 0);
-        pwm_ctrl.disable();
 
         let [soil, light, bat] = *adc_buf;
 
@@ -119,6 +118,7 @@ pub async fn task(
         info!("Soil {}, Light {}, Bat {}", soil, light, bat);
 
         ADC_MEASUREMENT.signal(measurements);
+        pwm_ctrl.disable();
 
         drop(pwm_ctrl);
         drop(saadc);
