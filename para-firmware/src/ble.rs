@@ -9,7 +9,10 @@ use para_fmt::{info, unwrap};
 use trouble_host::prelude::*;
 
 use crate::{
-    constants::{PARA_ADV_DURATION_SECS, PARA_BLE_TX_POWER, PARA_MAX_ADV_INTERVAL_MS, PARA_MIN_ADV_INTERVAL_MS, PARA_NAME},
+    constants::{
+        PARA_ADV_DURATION_SECS, PARA_BLE_TX_POWER, PARA_MAX_ADV_INTERVAL_MS,
+        PARA_MIN_ADV_INTERVAL_MS, PARA_NAME,
+    },
     state::{ADC_MEASUREMENT, SHTC3_MEASUREMENT, START_MEASUREMENTS},
 };
 
@@ -70,11 +73,11 @@ pub async fn run<'d>(controller: nrf_sdc::SoftdeviceController<'d>) {
 
             let mut ad = BtHomeAd::default();
 
-            ad.add_data(&shtc3.temperature)
-                .add_data(&shtc3.humidity)
-                .add_data(&adc.moisture)
-                .add_data(&adc.lux)
-                .add_data(&adc.battery);
+            ad.add_data(adc.battery)
+                .add_data(shtc3.temperature)
+                .add_data(shtc3.humidity)
+                .add_data(adc.lux)
+                .add_data(adc.moisture);
 
             let adv_data = ad.encode_with_local_name(PARA_NAME);
 
