@@ -9,7 +9,7 @@ use para_fmt::{info, unwrap};
 use trouble_host::prelude::*;
 
 use crate::{
-    constants::{PARA_ADV_DURATION_SECS, PARA_NAME},
+    constants::{PARA_ADV_DURATION_SECS, PARA_BLE_TX_POWER, PARA_MAX_ADV_INTERVAL_MS, PARA_MIN_ADV_INTERVAL_MS, PARA_NAME},
     state::{ADC_MEASUREMENT, SHTC3_MEASUREMENT, START_MEASUREMENTS},
 };
 
@@ -57,9 +57,9 @@ pub async fn run<'d>(controller: nrf_sdc::SoftdeviceController<'d>) {
 
     let _ = join(runner.run(), async {
         let params: AdvertisementParameters = AdvertisementParameters {
-            interval_min: Duration::from_millis(100),
-            interval_max: Duration::from_millis(150),
-            tx_power: TxPower::Plus8dBm,
+            interval_min: Duration::from_millis(PARA_MIN_ADV_INTERVAL_MS),
+            interval_max: Duration::from_millis(PARA_MAX_ADV_INTERVAL_MS),
+            tx_power: PARA_BLE_TX_POWER,
             ..Default::default()
         };
 

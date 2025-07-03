@@ -1,12 +1,16 @@
 use para_battery::BatteryDischargeProfile;
+use trouble_host::prelude::TxPower;
 
 pub const PARA_SLEEP_SECS: u64 = 300;
 pub const PARA_ADV_DURATION_SECS: u64 = 4;
+pub const PARA_MIN_ADV_INTERVAL_MS: u64 = 100;
+pub const PARA_MAX_ADV_INTERVAL_MS: u64 = 150;
+pub const PARA_BLE_TX_POWER: TxPower = TxPower::Plus10dBm;
 
 pub static PARA_NAME: &str = "r-para";
 
-pub static DRY_COEFFS: [f32; 3] = [234.0, 110.0, -15.3];
-pub static WET_COEFFS: [f32; 3] = [399.0, -83.1, 11.2];
+pub static DRY_COEFFS: [f32; 3] = [134.0, 110.0, -15.3];
+pub static WET_COEFFS: [f32; 3] = [319.0, -63.1, 7.2];
 
 pub static DISCARGE_PROFILES: [BatteryDischargeProfile; 4] = [
     BatteryDischargeProfile::new(3.00, 2.90, 1.00, 0.42),
