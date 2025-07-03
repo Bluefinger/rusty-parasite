@@ -3,7 +3,7 @@ use trouble_host::prelude::TxPower;
 
 pub const PARA_SLEEP_SECS: u64 = 300;
 pub const PARA_ADV_DURATION_SECS: u64 = 4;
-pub const PARA_MIN_ADV_INTERVAL_MS: u64 = 100;
+pub const PARA_MIN_ADV_INTERVAL_MS: u64 = 50;
 pub const PARA_MAX_ADV_INTERVAL_MS: u64 = 150;
 pub const PARA_BLE_TX_POWER: TxPower = TxPower::Plus10dBm;
 
