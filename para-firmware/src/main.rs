@@ -83,7 +83,7 @@ async fn main(spawner: Spawner) {
 
     let mut rng = rng::Rng::new(p.RNG, Irqs);
 
-    let mut sdc_mem = sdc::Mem::<1648>::new();
+    let mut sdc_mem = sdc::Mem::<792>::new();
     let sdc = unwrap!(ble::build_sdc(sdc_p, &mut rng, mpsl, &mut sdc_mem));
 
     info!("Rusty Parasite is go!");

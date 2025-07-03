@@ -9,7 +9,7 @@ pub const PARA_BLE_TX_POWER: TxPower = TxPower::Plus10dBm;
 
 pub static PARA_NAME: &str = "r-para";
 
-pub static DRY_COEFFS: [f32; 3] = [134.0, 110.0, -15.3];
+pub static DRY_COEFFS: [f32; 3] = [154.0, 110.0, -15.3];
 pub static WET_COEFFS: [f32; 3] = [319.0, -63.1, 7.2];
 
 pub static DISCARGE_PROFILES: [BatteryDischargeProfile; 4] = [
