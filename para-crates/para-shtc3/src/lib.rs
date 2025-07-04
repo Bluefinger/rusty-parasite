@@ -58,7 +58,7 @@
 //! ```no_run
 //! use linux_embedded_hal::{Delay, I2cdev};
 //! use para_shtc3::{ShtC3, PowerMode};
-//! 
+//!
 //! let mut sht = ShtC3::new(I2cdev::new("/dev/i2c-1").unwrap());
 //! let mut delay = Delay;
 //!
@@ -559,7 +559,8 @@ mod tests {
         #[test]
         fn send_command_error() {
             let expectations =
-                [Transaction::write(SHT_ADDR, alloc::vec![0xef, 0xc8]).with_error(ErrorKind::Other)];
+                [Transaction::write(SHT_ADDR, alloc::vec![0xef, 0xc8])
+                    .with_error(ErrorKind::Other)];
             let mock = I2cMock::new(&expectations);
             let mut sht = ShtC3::new(mock);
             let err = sht.send_command(Command::ReadIdRegister).unwrap_err();
@@ -784,7 +785,8 @@ mod tests {
         #[test]
         fn measure_write_error() {
             let expectations =
-                [Transaction::write(SHT_ADDR, alloc::vec![0x60, 0x9C]).with_error(ErrorKind::Other)];
+                [Transaction::write(SHT_ADDR, alloc::vec![0x60, 0x9C])
+                    .with_error(ErrorKind::Other)];
             let mock = I2cMock::new(&expectations);
             let mut sht = ShtC3::new(mock);
             let err = sht

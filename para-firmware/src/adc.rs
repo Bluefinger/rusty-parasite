@@ -74,7 +74,7 @@ pub async fn task(
 
         let mut soil_config = ChannelConfig::single_ended(soil_pin.reborrow());
         soil_config.reference = saadc::Reference::VDD1_4;
-        
+
         let bat_config = ChannelConfig::single_ended(saadc::VddInput);
 
         let mut saadc_config = Config::default();

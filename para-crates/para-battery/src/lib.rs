@@ -22,7 +22,7 @@ impl BatteryDischargeProfile {
 
     /// Calculates a battery percentage according to the specified range of the discharge profile.
     /// If the voltage is outside of the discharge profile, this method returns `None`.
-    /// 
+    ///
     /// ```
     /// use para_battery::BatteryDischargeProfile;
     ///
@@ -49,7 +49,7 @@ impl BatteryDischargeProfile {
     ///
     /// ```
     /// use para_battery::BatteryDischargeProfile;
-    /// 
+    ///
     /// let levels = [
     ///     BatteryDischargeProfile::new(3.0, 2.5, 1.0, 0.5),
     ///     BatteryDischargeProfile::new(2.5, 2.0, 0.5, 0.0),

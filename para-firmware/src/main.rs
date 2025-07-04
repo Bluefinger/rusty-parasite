@@ -22,8 +22,7 @@ use embassy_executor::Spawner;
 use embassy_nrf::{
     bind_interrupts,
     gpio::{Input, Level, Output, OutputDrive},
-    peripherals,
-    rng, saadc, twim,
+    peripherals, rng, saadc, twim,
 };
 use nrf_sdc::mpsl::MultiprotocolServiceLayer;
 use nrf_sdc::{self as sdc, mpsl};
