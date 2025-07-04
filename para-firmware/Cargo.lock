@@ -739,7 +739,7 @@ dependencies = [
 [[package]]
 name = "nrf-mpsl"
 version = "0.1.0"
-source = "git+https://github.com/alexmoon/nrf-sdc/#2bad984afbf219e2aa24f53ae4aa069839eae2de"
+source = "git+https://github.com/alexmoon/nrf-sdc/#823c7522b7f63a8b53b4f15f59946d04a84ff19c"
 dependencies = [
  "cortex-m",
  "critical-section",
@@ -755,7 +755,7 @@ dependencies = [
 [[package]]
 name = "nrf-mpsl-sys"
 version = "0.1.1"
-source = "git+https://github.com/alexmoon/nrf-sdc/#2bad984afbf219e2aa24f53ae4aa069839eae2de"
+source = "git+https://github.com/alexmoon/nrf-sdc/#823c7522b7f63a8b53b4f15f59946d04a84ff19c"
 dependencies = [
  "bindgen",
  "doxygen-rs",
@@ -774,7 +774,7 @@ dependencies = [
 [[package]]
 name = "nrf-sdc"
 version = "0.1.0"
-source = "git+https://github.com/alexmoon/nrf-sdc/#2bad984afbf219e2aa24f53ae4aa069839eae2de"
+source = "git+https://github.com/alexmoon/nrf-sdc/#823c7522b7f63a8b53b4f15f59946d04a84ff19c"
 dependencies = [
  "bt-hci",
  "critical-section",
@@ -792,7 +792,7 @@ dependencies = [
 [[package]]
 name = "nrf-sdc-sys"
 version = "0.1.0"
-source = "git+https://github.com/alexmoon/nrf-sdc/#2bad984afbf219e2aa24f53ae4aa069839eae2de"
+source = "git+https://github.com/alexmoon/nrf-sdc/#823c7522b7f63a8b53b4f15f59946d04a84ff19c"
 dependencies = [
  "bindgen",
  "doxygen-rs",
@@ -1155,8 +1155,8 @@ dependencies = [
 
 [[package]]
 name = "trouble-host"
-version = "0.2.0"
-source = "git+https://github.com/embassy-rs/trouble/#f489f6cd826a20ea60b24265bd7dc4a96fa579b8"
+version = "0.2.3"
+source = "git+https://github.com/embassy-rs/trouble/#90c6359aff5ad80e80c008517a966c5682b0993b"
 dependencies = [
  "bt-hci",
  "defmt 1.0.1",
@@ -1175,7 +1175,7 @@ dependencies = [
 [[package]]
 name = "trouble-host-macros"
 version = "0.2.0"
-source = "git+https://github.com/embassy-rs/trouble/#f489f6cd826a20ea60b24265bd7dc4a96fa579b8"
+source = "git+https://github.com/embassy-rs/trouble/#90c6359aff5ad80e80c008517a966c5682b0993b"
 dependencies = [
  "convert_case",
  "darling",

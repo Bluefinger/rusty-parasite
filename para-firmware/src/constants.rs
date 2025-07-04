@@ -4,8 +4,8 @@ use trouble_host::prelude::TxPower;
 pub const PARA_SLEEP_SECS: u64 = 300;
 pub const PARA_ADV_DURATION_SECS: u64 = 4;
 pub const PARA_MIN_ADV_INTERVAL_MS: u64 = 30;
-pub const PARA_MAX_ADV_INTERVAL_MS: u64 = 40;
-pub const PARA_BLE_TX_POWER: TxPower = TxPower::Plus12dBm;
+pub const PARA_MAX_ADV_INTERVAL_MS: u64 = 80;
+pub const PARA_BLE_TX_POWER: TxPower = TxPower::Plus8dBm;
 
 pub static PARA_NAME: &str = "r-para";
 
