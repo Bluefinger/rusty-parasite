@@ -22,7 +22,9 @@ use embassy_executor::Spawner;
 use embassy_nrf::{
     bind_interrupts,
     gpio::{Input, Level, Output, OutputDrive},
-    peripherals, rng, saadc, twim,
+    peripherals,
+    rng::{self, Rng},
+    saadc, twim,
 };
 use nrf_sdc::mpsl::MultiprotocolServiceLayer;
 use nrf_sdc::{self as sdc, mpsl};
@@ -80,12 +82,16 @@ async fn main(spawner: Spawner) {
         p.PPI_CH25, p.PPI_CH26, p.PPI_CH27, p.PPI_CH28, p.PPI_CH29,
     );
 
-    let mut rng = rng::Rng::new(p.RNG, Irqs);
+    static DEVICE_RNG: StaticCell<Rng<'static, peripherals::RNG, embassy_nrf::mode::Async>> =
+        StaticCell::new();
+    let rng = DEVICE_RNG.init_with(|| rng::Rng::new(p.RNG, Irqs));
 
-    let mut sdc_mem = sdc::Mem::<792>::new();
-    let sdc = unwrap!(ble::build_sdc(sdc_p, &mut rng, mpsl, &mut sdc_mem));
+    static SDC_MEM: StaticCell<sdc::Mem<792>> = StaticCell::new();
+    let sdc_mem = SDC_MEM.init_with(sdc::Mem::new);
+
+    let sdc = unwrap!(ble::build_sdc(sdc_p, rng, mpsl, sdc_mem));
 
     info!("Rusty Parasite is go!");
 
-    ble::run(sdc).await;
+    spawner.must_spawn(ble::run(sdc));
 }

@@ -40,7 +40,8 @@ fn build_addr() -> BdAddr {
     BdAddr::new(unwrap!(addr.to_le_bytes()[..6].try_into()))
 }
 
-pub async fn run<'d>(controller: nrf_sdc::SoftdeviceController<'d>) {
+#[embassy_executor::task]
+pub async fn run(controller: nrf_sdc::SoftdeviceController<'static>) {
     let addr = build_addr();
 
     info!("Our address = {:?}", &addr);
@@ -56,9 +57,9 @@ pub async fn run<'d>(controller: nrf_sdc::SoftdeviceController<'d>) {
         ..
     } = stack.build();
 
-    let mut start_measurements = START_MEASUREMENTS.receiver().unwrap();
-
     let _ = join(runner.run(), async {
+        let mut start_measurements = unwrap!(START_MEASUREMENTS.receiver());
+
         let params: AdvertisementParameters = AdvertisementParameters {
             interval_min: Duration::from_millis(PARA_MIN_ADV_INTERVAL_MS),
             interval_max: Duration::from_millis(PARA_MAX_ADV_INTERVAL_MS),
@@ -73,13 +74,15 @@ pub async fn run<'d>(controller: nrf_sdc::SoftdeviceController<'d>) {
 
             let mut ad = BtHomeAd::default();
 
-            ad.add_data(adc.battery)
+            let adv_data = ad
+                .add_data(adc.battery)
                 .add_data(shtc3.temperature)
-                .add_data(shtc3.humidity)
                 .add_data(adc.lux)
-                .add_data(adc.moisture);
-
-            let adv_data = ad.encode_with_local_name(PARA_NAME);
+                .add_data(adc.voltage)
+                .add_data(shtc3.humidity)
+                .add_data(adc.moisture)
+                .add_local_name(PARA_NAME)
+                .encode();
 
             info!("Starting advertising");
             let advertiser = unwrap!(
@@ -92,7 +95,6 @@ pub async fn run<'d>(controller: nrf_sdc::SoftdeviceController<'d>) {
                         },
                     )
                     .await,
-                "Failed to advertise"
             );
             Timer::after_secs(PARA_ADV_DURATION_SECS).await;
             drop(advertiser);

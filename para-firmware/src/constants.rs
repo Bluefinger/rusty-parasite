@@ -7,7 +7,7 @@ pub const PARA_MIN_ADV_INTERVAL_MS: u64 = 30;
 pub const PARA_MAX_ADV_INTERVAL_MS: u64 = 80;
 pub const PARA_BLE_TX_POWER: TxPower = TxPower::Plus8dBm;
 
-pub static PARA_NAME: &str = "r-para";
+pub static PARA_NAME: &str = "rpara";
 
 pub static DRY_COEFFS: [f32; 3] = [154.0, 110.0, -15.3];
 pub static WET_COEFFS: [f32; 3] = [319.0, -63.1, 7.2];

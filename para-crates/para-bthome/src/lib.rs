@@ -108,7 +108,10 @@ impl_fields! {
     (Temperature10mK, 0x02, [u8; 3], i16),
     (Humidity10mPer, 0x03, [u8; 3], u16),
     (Illuminance10mLux, 0x05, [u8; 4], u32),
+    (Voltage1mV, 0x0C, [u8; 3], u16),
     (Moisture10mPer, 0x14, [u8; 3], u16),
+    (Humidity1Per, 0x2E, [u8; 2], u8),
+    (Moisture1Per, 0x2F, [u8; 2], u8),
 }
 
 pub trait BtHomeData {
@@ -147,7 +150,7 @@ impl<const N: usize> BtHomeAd<N> {
         self
     }
 
-    fn add_local_name(&mut self, name: &str) -> &mut Self {
+    pub fn add_local_name(&mut self, name: &str) -> &Self {
         let len = name.len() + 1;
 
         assert!(
@@ -157,15 +160,14 @@ impl<const N: usize> BtHomeAd<N> {
 
         self.buffer.extend_from_slice(&[len as u8, 0x09]).ok();
         self.buffer.extend_from_slice(name.as_bytes()).ok();
-        self
+
+        // Reborrow as ref to prevent further mutation after we have
+        // added the local name to the ad.
+        &*self
     }
 
-    fn encode(&self) -> &[u8] {
+    pub fn encode(&self) -> &[u8] {
         &self.buffer
-    }
-
-    pub fn encode_with_local_name(&mut self, name: &str) -> &[u8] {
-        self.add_local_name(name).encode()
     }
 }
 
@@ -243,16 +245,33 @@ mod tests {
     fn full_payload() {
         let mut home = BtHomeAd::default();
 
-        home.add_data(Battery1Per::from(34))
+        let encoded = home
+            .add_data(Battery1Per::from(34))
             .add_data(Temperature10mK::from(2255))
             .add_data(Humidity10mPer::from(3400))
             .add_data(Illuminance10mLux::from(45000))
-            .add_data(Moisture10mPer::from(3632));
-
-        let encoded = home.encode_with_local_name("r-para");
+            .add_data(Moisture10mPer::from(3632))
+            .add_local_name("r-para")
+            .encode();
 
         // Final payload is within the max size for the advertising payload
         assert_eq!(encoded.len(), 31);
         assert_eq!(home.buffer[3], 19);
+
+        let mut home = BtHomeAd::default();
+
+        let encoded = home
+            .add_data(Battery1Per::from(34))
+            .add_data(Temperature10mK::from(2255))
+            .add_data(Illuminance10mLux::from(45000))
+            .add_data(Voltage1mV::from(2800))
+            .add_data(Humidity1Per::from(34))
+            .add_data(Moisture1Per::from(36))
+            .add_local_name("rpara")
+            .encode();
+
+        // Final payload is within the max size for the advertising payload
+        assert_eq!(encoded.len(), 31);
+        assert_eq!(home.buffer[3], 20);
     }
 }

@@ -1,21 +1,35 @@
 /// A temperature measurement.
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Default, Debug, Copy, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Temperature(i32);
 
 /// A humidity measurement.
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Default, Debug, Copy, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Humidity(i32);
 
 /// A combined temperature / humidity measurement.
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Default, Debug, Copy, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Measurement {
     /// The measured temperature.
     pub temperature: Temperature,
     /// The measured humidity.
     pub humidity: Humidity,
+}
+
+impl core::ops::AddAssign for Measurement {
+    fn add_assign(&mut self, rhs: Self) {
+        self.temperature.0 += rhs.temperature.0;
+        self.humidity.0 += rhs.humidity.0;
+    }
+}
+
+impl core::ops::DivAssign<i32> for Measurement {
+    fn div_assign(&mut self, rhs: i32) {
+        self.temperature.0 /= rhs;
+        self.humidity.0 /= rhs;
+    }
 }
 
 /// A combined raw temperature / humidity measurement.
@@ -76,6 +90,11 @@ impl Humidity {
     /// Return relative humidity in 1/1000 %RH.
     pub const fn as_millipercent(&self) -> i32 {
         self.0
+    }
+
+    /// Return relative humidity in 1 %RH
+    pub const fn as_1k_percent(&self) -> u8 {
+        (self.0 / 1000).unsigned_abs() as u8
     }
 
     /// Return relative humidity in %RH.
