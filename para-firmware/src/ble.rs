@@ -94,7 +94,7 @@ pub async fn run(controller: nrf_sdc::SoftdeviceController<'static>) {
                             scan_data: &[],
                         },
                     )
-                    .await,
+                    .await
             );
             Timer::after_secs(PARA_ADV_DURATION_SECS).await;
             drop(advertiser);

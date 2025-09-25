@@ -114,10 +114,6 @@ impl_fields! {
     (Moisture1Per, 0x2F, [u8; 2], u8),
 }
 
-pub trait BtHomeData {
-    fn encode(&self) -> &[u8];
-}
-
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct BtHomeAd<const N: usize> {
